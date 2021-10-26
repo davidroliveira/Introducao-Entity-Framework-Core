@@ -3,14 +3,14 @@ using System.ComponentModel.DataAnnotations.Schema;
 
 namespace CursoEFCore.Domain
 {
-    [Table("Clientes")]
+    [Table("Cliente")]//Nome da Tabela no banco
     public class Cliente
     {
-        [Key]
+        [Key]//Chave
         public int Id { get; set; }
-        [Required]
+        [Required]//Requerido
         public string Nome { get; set; }
-        [Column("Phone")]
+        [Column("Phone")]//Nome da propriedade não é o mesmo nome da coluna no banco
         public string Telefone { get; set; }
         public string CEP { get; set; }
         public string Estado { get; set; }
