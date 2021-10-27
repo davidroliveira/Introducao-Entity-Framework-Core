@@ -18,7 +18,24 @@ namespace CursoEFCore
                 Console.WriteLine("Existem Migrações pendentes");
 
             //InserirDados();
-            InserirDadosEmMassa();
+            //InserirDadosEmMassa();
+            ConsultaDados();
+        }
+
+        private static void ConsultaDados()
+        {
+            using var db = new Data.ApplicationContext();
+            //var consultaPorSintaxe = (from c in db.Cliente where c.Id > 0 select c).ToList(); //Metodo alternativo
+            
+            var consultaPorMetodo = db.Cliente.Where(c => c.Id > 0).OrderBy(c => c.Id).ToList(); //Mantem objetos em memoria
+            //var consultaPorMetodo = db.Cliente.AsNoTracking().Where(c => c.Id > 0).ToList(); //Não mantem objetos em memoria
+                        
+            foreach (var cliente in consultaPorMetodo)
+            {
+                Console.WriteLine($"Consultando Cliente: {cliente.Id}");
+                //db.Cliente.Find(cliente.Id); //Objetos ficam memoria e não realiza uma segunda consulta no banco (sem usar o AsNoTracking), apenas o Find faz isso
+                db.Cliente.FirstOrDefault(c => c.Id == cliente.Id); //Sempre faz consulta no banco (independente de usar o AsNoTracking)
+            }
         }
 
         private static void InserirDadosEmMassa()
