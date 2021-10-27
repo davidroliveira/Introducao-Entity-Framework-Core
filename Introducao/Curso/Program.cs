@@ -22,8 +22,48 @@ namespace CursoEFCore
             //InserirDadosEmMassa();
             //ConsultaDados();
             //CadastrarPedido();
-            ConsultarPedidoCarregamentoAdiantado();
+            //ConsultarPedidoCarregamentoAdiantado();
+            AtualizarDados();
         }
+
+        private static void AtualizarDados()
+        {
+            using var db = new Data.ApplicationContext();
+            var cliente = db.Set<Cliente>().FirstOrDefault(c => c.Id == 1);
+            //var cliente = db.Set<Cliente>().Find(keyValues: 1);
+
+            cliente.Nome = "Cliente Alterado Passo 2";
+            //db.Set<Cliente>().Update(cliente); //Se descomentar essa linha o Update sera com todas as colunas
+            //Com a linha de cima  ->  UPDATE [Cliente] SET [CEP] = @p0, [Cidade] = @p1, [Estado] = @p2, [Nome] = @p3, [Phone] = @p4
+            //Sem a linha de cima  ->  UPDATE[Cliente] SET[Nome] = @p0
+
+            //Com a linha de baixo (por rastreamento)  ->  UPDATE [Cliente] SET [CEP] = @p0, [Cidade] = @p1, [Estado] = @p2, [Nome] = @p3, [Phone] = @p4
+            db.Entry(cliente).State = EntityState.Modified;
+
+            db.SaveChanges();
+
+            ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+            //Cenário desconectado
+            
+            
+            var clienteTeste = new Cliente
+            {
+                Id = 2
+            };
+            
+            var clienteDesconectado = new
+            {
+                Nome = "Cliente Desconectado Passo 4",
+                Telefone = "7966669999"
+            };
+            
+            db.Attach(clienteTeste); //Objeto inicializado fora do EF
+            db.Entry(clienteTeste).CurrentValues.SetValues(clienteDesconectado);
+
+            //db.Clientes.Update(cliente);
+            db.SaveChanges();            
+        }
+
         private static void ConsultarPedidoCarregamentoAdiantado()
         {
             using var db = new Data.ApplicationContext();
