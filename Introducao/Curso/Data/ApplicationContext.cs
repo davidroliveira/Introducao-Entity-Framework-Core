@@ -4,6 +4,7 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Text;
 
 namespace CursoEFCore.Data
@@ -34,6 +35,29 @@ namespace CursoEFCore.Data
 
             //Metodo 2
             modelBuilder.ApplyConfigurationsFromAssembly(typeof(ApplicationContext).Assembly);
+            
+            MapearPropriedadesEsquecidas(modelBuilder);
         }
+
+        private void MapearPropriedadesEsquecidas(ModelBuilder modelBuilder)
+        {
+            //RTTI
+            foreach (var entity in modelBuilder.Model.GetEntityTypes())
+            {
+                //Exemplo para tipo String evitar varchar(max)
+                var properties = entity.GetProperties().Where(p => p.ClrType == typeof(string)); 
+
+                foreach (var property in properties)
+                {
+                    if (string.IsNullOrEmpty(property.GetColumnType()) /*property.SetColumnType("VARCHAR(100)")*/ 
+                        && !property.GetMaxLength().HasValue /*property.SetMaxLength(100);*/)
+                    {
+                        //property.SetMaxLength(100);
+                        property.SetColumnType("VARCHAR(100)");
+                    }
+                }
+            }
+        }
+
     }
 }
