@@ -27,7 +27,8 @@ namespace CursoEFCore.Data
                                     maxRetryCount: 2, 
                                     maxRetryDelay: TimeSpan.FromSeconds(5),
                                     errorNumbersToAdd: null
-                                ));
+                                )
+                            .MigrationsHistoryTable("CursoEfCore", "dbo"));
         }
                 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
