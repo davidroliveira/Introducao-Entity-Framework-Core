@@ -2,6 +2,7 @@
 using CursoEFCore.ValueObjects;
 using Microsoft.EntityFrameworkCore;
 using System;
+using System.Collections.Generic;
 using System.Linq;
 
 namespace CursoEFCore
@@ -19,22 +20,65 @@ namespace CursoEFCore
 
             //InserirDados();
             //InserirDadosEmMassa();
-            ConsultaDados();
+            //ConsultaDados();
+            //CadastrarPedido();
+            ConsultarPedidoCarregamentoAdiantado();
+        }
+        private static void ConsultarPedidoCarregamentoAdiantado()
+        {
+            using var db = new Data.ApplicationContext();
+
+            //var pedidos = db.Set<Pedido>().ToList(); //Não carrega os Itens
+
+            var pedidos = db.Set<Pedido>()
+                .Include(p => p.Itens).ThenInclude(p => p.Produto)
+                .ToList();
+
+            Console.WriteLine(pedidos.Count);
+        }
+
+        private static void CadastrarPedido()
+        {
+            using var db = new Data.ApplicationContext();
+
+            var cliente = db.Set<Cliente>().FirstOrDefault();
+            var produto = db.Set<Produto>().FirstOrDefault();
+
+            var pedido = new Pedido
+            {
+                ClienteId = cliente.Id,
+                IniciadoEm = DateTime.Now,
+                FinalizadoEm = DateTime.Now,
+                Observacao = "Pedido Teste",
+                Status = StatusPedido.Analise,
+                TipoFrete = TipoFrete.SemFrete,
+                Itens = new List<PedidoItem>
+                 {
+                     new PedidoItem
+                     {
+                         ProdutoId = produto.Id,
+                         Desconto = 0,
+                         Quantidade = 1,
+                         Valor = 10,
+                     }
+                 }
+            };
+            db.Set<Pedido>().Add(pedido);
+            db.SaveChanges();
         }
 
         private static void ConsultaDados()
         {
             using var db = new Data.ApplicationContext();
-            //var consultaPorSintaxe = (from c in db.Cliente where c.Id > 0 select c).ToList(); //Metodo alternativo
-            
-            var consultaPorMetodo = db.Cliente.Where(c => c.Id > 0).OrderBy(c => c.Id).ToList(); //Mantem objetos em memoria
-            //var consultaPorMetodo = db.Cliente.AsNoTracking().Where(c => c.Id > 0).ToList(); //Não mantem objetos em memoria
-                        
+            //var consultaPorSintaxe = (from c in db.Cliente where c.Id > 0 select c).ToList(); //Metodo alternativo            
+            var consultaPorMetodo = db.Set<Cliente>().Where(c => c.Id > 0).OrderBy(c => c.Id).ToList(); //Mantem objetos em memoria
+                                                                                                        //var consultaPorMetodo = db.Cliente.AsNoTracking().Where(c => c.Id > 0).ToList(); //Não mantem objetos em memoria
+
             foreach (var cliente in consultaPorMetodo)
             {
                 Console.WriteLine($"Consultando Cliente: {cliente.Id}");
                 //db.Cliente.Find(cliente.Id); //Objetos ficam memoria e não realiza uma segunda consulta no banco (sem usar o AsNoTracking), apenas o Find faz isso
-                db.Cliente.FirstOrDefault(c => c.Id == cliente.Id); //Sempre faz consulta no banco (independente de usar o AsNoTracking)
+                db.Set<Cliente>().FirstOrDefault(c => c.Id == cliente.Id); //Sempre faz consulta no banco (independente de usar o AsNoTracking)
             }
         }
 
