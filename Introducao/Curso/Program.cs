@@ -23,7 +23,23 @@ namespace CursoEFCore
             //ConsultaDados();
             //CadastrarPedido();
             //ConsultarPedidoCarregamentoAdiantado();
-            AtualizarDados();
+            //AtualizarDados();
+            RemoverRegistro();
+        }
+
+        private static void RemoverRegistro()
+        {
+            using var db = new Data.ApplicationContext();
+            //var cliente = db.Clientes.Find(2);
+            //var cliente = db.Set<Cliente>().FirstOrDefault(c => c.Id == 2);            
+            
+            var cliente = new Cliente { Id = 1 }; //Desconectado
+
+            //db.Set<Cliente>().Remove(cliente);
+            //db.Remove(cliente);
+            db.Entry(cliente).State = EntityState.Deleted;
+
+            db.SaveChanges();
         }
 
         private static void AtualizarDados()
